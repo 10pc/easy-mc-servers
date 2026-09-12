@@ -56,6 +56,7 @@ async function refresh() {
         <div class="domain">network: <code>${s.zt_net}</code> <button data-copy="${s.zt_net}">copy</button></div>
         ${s.zt_ip ? `<div class="domain">address: <code>${s.zt_ip}:${s.mc_port}</code> <button data-copy="${s.zt_ip}:${s.mc_port}">copy</button></div>` : ''}
         <div class="domain"><a href="https://www.zerotier.com/download/" target="_blank" rel="noopener">download zerotier</a></div>
+        <img src="/static/tutorial.png" alt="join new network screenshot" style="max-width:100%;margin-top:8px;border:2px inset #ffffff">
         <div><em>message the admin your zerotier address to get authorized</em></div>
       </div>` : ''}
       ${s.e4mc_error ? `<p class="err">${s.e4mc_error}</p>` : ''}
