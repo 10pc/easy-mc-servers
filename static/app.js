@@ -244,14 +244,21 @@ function setSys(id, text) {
   const el = document.getElementById(id);
   if (el) el.textContent = text;
 }
+function setBar(id, pct) {
+  const el = document.getElementById(id);
+  if (el) el.style.width = (pct == null ? 0 : Math.min(100, Math.max(0, pct))) + '%';
+}
 async function refreshSys() {
   let s;
   try { s = await api('/api/system'); }
   catch (e) { return; }
-  setSys('sysCpu', s.cpu_percent == null ? 'cpu …' : `cpu ${s.cpu_percent}%`);
-  setSys('sysMem', `mem ${s.mem_used_mb}/${s.mem_total_mb}mb ${s.mem_percent}%`);
-  setSys('sysDisk', `disk ${s.disk_used_gb}/${s.disk_total_gb}gb ${s.disk_percent}%`);
-  setSys('sysUp', `up ${fmtUptime(s.uptime)}`);
+  setSys('sysCpu', s.cpu_percent == null ? '…' : `${s.cpu_percent}%`);
+  setBar('barCpu', s.cpu_percent);
+  setSys('sysMem', `${s.mem_used_mb}/${s.mem_total_mb}mb`);
+  setBar('barMem', s.mem_percent);
+  setSys('sysDisk', `${s.disk_used_gb}/${s.disk_total_gb}gb`);
+  setBar('barDisk', s.disk_percent);
+  setSys('sysUp', fmtUptime(s.uptime));
 }
 refreshSys();
 setInterval(refreshSys, 5000);

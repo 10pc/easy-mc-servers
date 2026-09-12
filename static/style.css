@@ -4,8 +4,16 @@ body{font-family:Tahoma,Verdana,Arial,sans-serif;background:#3a6ea5;color:#000;m
 .top{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(90deg,#000080,#1084d0);color:#fff;padding:6px 10px;margin:12px 0 0;border:2px outset #ffffff}
 .top h1{margin:0;font-size:22px;letter-spacing:1px}
 .userbox{display:flex;gap:10px;align-items:center;font-size:13px}
-.headerright{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.sysbar{display:flex;gap:10px;font-size:12px;font-family:"Courier New",monospace;color:#fff}
+.subrow{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.sysbox{font-size:12px;font-family:"Courier New",monospace;background:#fff;border:2px inset #ffffff;padding:6px 8px;min-width:250px}
+.sysrow{display:flex;gap:6px;align-items:center;margin:3px 0}
+.sysrow > span:first-child{width:30px}
+.bar{flex:1;height:12px;border:1px solid #808080;background:#fff;min-width:70px}
+.barfill{height:100%;width:0}
+.barfill.cpu{background:repeating-linear-gradient(90deg,#000080 0 5px,#d4d0c8 5px 7px)}
+.barfill.mem{background:repeating-linear-gradient(90deg,#008000 0 5px,#d4d0c8 5px 7px)}
+.barfill.disk{background:repeating-linear-gradient(90deg,#800080 0 5px,#d4d0c8 5px 7px)}
+.sysrow .val{min-width:118px;text-align:right}
 .layout{display:grid;grid-template-columns:1fr 2fr;gap:12px;align-items:start}
 .layout > *{min-width:0}
 @media (max-width:700px){.layout{grid-template-columns:1fr}}

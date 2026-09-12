@@ -6,13 +6,18 @@
 <body>
 <div class="page">
 <header class="top"><h1>dimas' servers</h1>
-<div class="headerright">
-<div class="sysbar"><span id="sysCpu">cpu …</span><span id="sysMem">mem …</span><span id="sysDisk">disk …</span><span id="sysUp">up …</span></div>
 <div class="userbox"><span>hi, {{ username }}{% if is_admin %} (admin){% endif %}</span>
 <form method="post" action="/logout" id="logoutForm"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">logout</button></form></div>
-</div>
 </header>
+<div class="subrow">
 <p class="hint">hai :wave:<br>servers are listed here :3</p>
+<div class="sysbox">
+<div class="sysrow"><span>cpu</span><div class="bar"><div id="barCpu" class="barfill cpu"></div></div><span id="sysCpu" class="val">…</span></div>
+<div class="sysrow"><span>mem</span><div class="bar"><div id="barMem" class="barfill mem"></div></div><span id="sysMem" class="val">…</span></div>
+<div class="sysrow"><span>disk</span><div class="bar"><div id="barDisk" class="barfill disk"></div></div><span id="sysDisk" class="val">…</span></div>
+<div class="sysrow"><span>up</span><span id="sysUp" class="val">…</span></div>
+</div>
+</div>
 <div class="layout">
 <aside class="sidebar">
 <h2>servers</h2>
