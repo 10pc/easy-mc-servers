@@ -1,9 +1,11 @@
-/* bleh — a 2000s tribute. gray bevels, navy titlebar, verdana. */
+/* a 2000s tribute. gray bevels, navy titlebar, verdana. */
 body{font-family:Tahoma,Verdana,Arial,sans-serif;background:#3a6ea5;color:#000;margin:0;text-transform:lowercase}
 .page{max-width:1000px;margin:16px auto;background:#d4d0c8;border:2px outset #ffffff;padding:0 12px 12px}
 .top{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(90deg,#000080,#1084d0);color:#fff;padding:6px 10px;margin:12px 0 0;border:2px outset #ffffff}
 .top h1{margin:0;font-size:22px;letter-spacing:1px}
 .userbox{display:flex;gap:10px;align-items:center;font-size:13px}
+.headerright{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.sysbar{display:flex;gap:10px;font-size:12px;font-family:"Courier New",monospace;color:#fff}
 .layout{display:grid;grid-template-columns:1fr 2fr;gap:12px;align-items:start}
 .layout > *{min-width:0}
 @media (max-width:700px){.layout{grid-template-columns:1fr}}

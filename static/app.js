@@ -238,3 +238,20 @@ if (addBtn) {
 refresh();
 setInterval(refresh, 3000);
 setInterval(() => { if (selectedId) loadLogs(); }, 5000);
+
+// ---- header system monitor ----
+function setSys(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+async function refreshSys() {
+  let s;
+  try { s = await api('/api/system'); }
+  catch (e) { return; }
+  setSys('sysCpu', s.cpu_percent == null ? 'cpu …' : `cpu ${s.cpu_percent}%`);
+  setSys('sysMem', `mem ${s.mem_used_mb}/${s.mem_total_mb}mb ${s.mem_percent}%`);
+  setSys('sysDisk', `disk ${s.disk_used_gb}/${s.disk_total_gb}gb ${s.disk_percent}%`);
+  setSys('sysUp', `up ${fmtUptime(s.uptime)}`);
+}
+refreshSys();
+setInterval(refreshSys, 5000);

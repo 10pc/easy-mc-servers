@@ -5,9 +5,12 @@
 <meta name="csrf-token" content="{{ csrf_token }}"></head>
 <body>
 <div class="page">
-<header class="top"><h1>bleh</h1>
+<header class="top"><h1>dimas' servers</h1>
+<div class="headerright">
+<div class="sysbar"><span id="sysCpu">cpu …</span><span id="sysMem">mem …</span><span id="sysDisk">disk …</span><span id="sysUp">up …</span></div>
 <div class="userbox"><span>hi, {{ username }}{% if is_admin %} (admin){% endif %}</span>
 <form method="post" action="/logout" id="logoutForm"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">logout</button></form></div>
+</div>
 </header>
 <p class="hint">hai :wave:<br>servers are listed here :3</p>
 <div class="layout">
@@ -46,7 +49,7 @@
 {% endif %}
 </main>
 </div>
-<footer class="footer">bleh · best viewed in netscape navigator 4.0 at 800x600</footer>
+<footer class="footer">x3 · best viewed in netscape navigator 4.0 at 800x600</footer>
 </div>
 <script src="/static/app.js"></script>
 </body></html>

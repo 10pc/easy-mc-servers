@@ -392,6 +392,62 @@ def api_admin_revoke():
     return jsonify({"ok": True})
 
 
+# ---------------- system monitor (stdlib, /proc) ----------------
+_sys_lock = __import__("threading").Lock()
+_last_cpu = None  # (total, idle, monotonic)
+
+
+def _cpu_percent():
+    global _last_cpu
+    with open("/proc/stat") as f:
+        vals = list(map(int, f.readline().split()[1:]))
+    total, idle = sum(vals), vals[3] + vals[4]  # idle + iowait
+    now = time.monotonic()
+    with _sys_lock:
+        prev = _last_cpu
+        _last_cpu = (total, idle, now)
+    if prev is None:
+        return None  # first sample just establishes a baseline
+    ptotal, pidle, _ = prev
+    dt, di = total - ptotal, idle - pidle
+    if dt <= 0:
+        return 0.0
+    return round(100.0 * (dt - di) / dt, 1)
+
+
+def _mem_info():
+    info = {}
+    with open("/proc/meminfo") as f:
+        for line in f:
+            key, _, rest = line.partition(":")
+            if key in ("MemTotal", "MemAvailable"):
+                info[key] = int(rest.split()[0])
+    used = info["MemTotal"] - info["MemAvailable"]
+    return used // 1024, info["MemTotal"] // 1024, round(100.0 * used / info["MemTotal"], 1)
+
+
+@app.route("/api/system")
+@login_required
+def api_system():
+    try:
+        import shutil
+        du = shutil.disk_usage("/srv")
+        used_mb, total_mb = du.used // 1048576, du.total // 1048576
+        with open("/proc/uptime") as f:
+            uptime = int(float(f.read().split()[0]))
+        used_ram, total_ram, pct_ram = _mem_info()
+        return jsonify({
+            "cpu_percent": _cpu_percent(),
+            "mem_used_mb": used_ram, "mem_total_mb": total_ram, "mem_percent": pct_ram,
+            "disk_used_gb": round(du.used / 1073741824, 1),
+            "disk_total_gb": round(du.total / 1073741824, 1),
+            "disk_percent": round(100.0 * du.used / du.total, 1),
+            "uptime": uptime,
+        })
+    except Exception as e:
+        return jsonify({"error": f"unavailable: {e}"}), 500
+
+
 if __name__ == "__main__":
     db.init_db()
     # Bind loopback only: exposed via Cloudflare Tunnel, no port forwarding.
