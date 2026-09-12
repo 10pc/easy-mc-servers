@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+servers.db
+.secret_key
+logs/
+bin/

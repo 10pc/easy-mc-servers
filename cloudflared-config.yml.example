@@ -1,0 +1,13 @@
+# cloudflared quick tunnel (no config file needed):
+#   cloudflared tunnel --url http://127.0.0.1:6701
+#
+# Named tunnel example (~/.cloudflared/config.yml):
+tunnel: <TUNNEL-ID>
+credentials-file: /home/ev/.cloudflared/<TUNNEL-ID>.json
+
+ingress:
+  - hostname: mc.example.com
+    service: http://127.0.0.1:6701
+    originRequest:
+      httpHostHeader: mc.example.com
+  - service: http_status:404

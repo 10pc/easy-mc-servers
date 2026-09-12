@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>bleh</title><link rel="stylesheet" href="/static/style.css">
+<meta name="csrf-token" content="{{ csrf_token }}"></head>
+<body><main class="wrap">
+<header class="top"><h1>bleh</h1>
+<form method="post" action="/logout" id="logoutForm"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Logout</button></form>
+</header>
+<p class="hint">hai :wave:<br>servers are listed here :3</p>
+<div id="servers"></div>
+<h2>logs</h2>
+<select id="logSel"></select> <button id="logBtn">refresh logs</button>
+<pre id="logs">select a server…</pre>
+<div class="row" style="margin-top:8px">
+<input id="consoleIn" placeholder="type a command…" autocomplete="off" spellcheck="false" style="flex:1;min-width:200px">
+<button id="consoleSend">send</button>
+</div>
+<script src="/static/app.js"></script>
+</main></body></html>

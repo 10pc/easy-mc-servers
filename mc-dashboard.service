@@ -1,0 +1,18 @@
+[Unit]
+Description=MC Server Dashboard (Flask, loopback only)
+After=network.target
+
+[Service]
+Type=simple
+User=ev
+WorkingDirectory=/srv/mcserverdb
+Environment=PORT=6701
+Environment=BIND=127.0.0.1
+Environment=SECURE_COOKIES=1
+ExecStart=/srv/mcserverdb/.venv/bin/python /srv/mcserverdb/app.py
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target
