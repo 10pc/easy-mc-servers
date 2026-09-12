@@ -198,7 +198,14 @@ def index():
 @app.route("/api/servers")
 @login_required
 def api_servers():
-    return jsonify([manager.get_state(s) for s in _visible_servers(_current_user())])
+    zt_ip = _zt_ip()
+    states = []
+    for s in _visible_servers(_current_user()):
+        st = manager.get_state(s)
+        st["zt_ip"] = zt_ip
+        st["zt_net"] = ZT_NET_ID
+        states.append(st)
+    return jsonify(states)
 
 
 @app.route("/api/servers/<sid>/logs")
@@ -448,7 +455,7 @@ def api_system():
         return jsonify({"error": f"unavailable: {e}"}), 500
 
 
-# ---------------- public join info (no login: this is for players) ----------------
+# ---------------- zerotier join info (logged-in users only) ----------------
 ZT_NET_ID = "YOUR_ZT_NETWORK_ID"
 ZT_IP_FALLBACK = "YOUR_ZT_IP"
 
@@ -468,14 +475,6 @@ def _zt_ip() -> str:
     except Exception:
         pass
     return ZT_IP_FALLBACK
-
-
-@app.route("/join")
-def join():
-    db.init_db()
-    servers = [{"name": s["name"], "mc_port": s["mc_port"]} for s in db.list_servers()]
-    return render_template("join.html", servers=servers,
-                           zt_ip=_zt_ip(), zt_net=ZT_NET_ID)
 
 
 if __name__ == "__main__":
