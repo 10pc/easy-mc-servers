@@ -3,28 +3,34 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>bleh</title><link rel="stylesheet" href="/static/style.css">
 <meta name="csrf-token" content="{{ csrf_token }}"></head>
-<body><main class="wrap">
+<body>
+<div class="page">
 <header class="top"><h1>bleh</h1>
-<span>hi, {{ username }}{% if is_admin %} (admin){% endif %}</span>
-<form method="post" action="/logout" id="logoutForm"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">logout</button></form>
+<div class="userbox"><span>hi, {{ username }}{% if is_admin %} (admin){% endif %}</span>
+<form method="post" action="/logout" id="logoutForm"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">logout</button></form></div>
 </header>
 <p class="hint">hai :wave:<br>servers are listed here :3</p>
+<div class="layout">
+<aside class="sidebar">
+<h2>servers</h2>
 <div id="servers"></div>
-<h2>logs</h2>
-<select id="logSel"></select> <button id="logBtn">refresh logs</button>
-<pre id="logs">select a server…</pre>
-<div class="row" style="margin-top:8px">
-<input id="consoleIn" placeholder="type a command…" autocomplete="off" spellcheck="false" style="flex:1;min-width:200px">
-<button id="consoleSend">send</button>
-</div>
 <h2>account</h2>
 <div class="card">
 <div class="row">
-<input id="curPass" type="password" placeholder="current password" autocomplete="current-password" style="width:160px">
-<input id="newPass1" type="password" placeholder="new password" autocomplete="new-password" style="width:160px">
-<input id="newPass2" type="password" placeholder="confirm new password" autocomplete="new-password" style="width:160px">
+<input id="curPass" type="password" placeholder="current password" autocomplete="current-password">
+<input id="newPass1" type="password" placeholder="new password" autocomplete="new-password">
+<input id="newPass2" type="password" placeholder="confirm new password" autocomplete="new-password">
 <button id="changePassBtn">change password</button>
 </div>
+</div>
+</aside>
+<main class="content">
+<h2 id="consoleTitle">console</h2>
+<div class="row"><button id="logBtn">refresh logs</button><span id="consoleServer" class="hint"></span></div>
+<pre id="logs">select a server…</pre>
+<div class="row" style="margin-top:8px">
+<input id="consoleIn" placeholder="type a command…" autocomplete="off" spellcheck="false" style="flex:1;min-width:160px">
+<button id="consoleSend">send</button>
 </div>
 {% if is_admin %}
 <h2>users (admin only)</h2>
@@ -38,5 +44,9 @@
 <div id="userList"></div>
 </div>
 {% endif %}
+</main>
+</div>
+<footer class="footer">bleh · best viewed in netscape navigator 4.0 at 800x600</footer>
+</div>
 <script src="/static/app.js"></script>
-</main></body></html>
+</body></html>

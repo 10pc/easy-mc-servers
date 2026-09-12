@@ -1,8 +1,10 @@
 const csrf = document.querySelector('meta[name=csrf-token]').content;
 const list = document.getElementById('servers');
-const logSel = document.getElementById('logSel');
 const logs = document.getElementById('logs');
+const consoleTitle = document.getElementById('consoleTitle');
+const consoleServer = document.getElementById('consoleServer');
 let servers = [];
+let selectedId = null;
 
 async function api(path, opts = {}) {
   const r = await fetch(path, {
@@ -22,74 +24,80 @@ function fmtUptime(s) {
   return `${s}s`;
 }
 
+function selected() {
+  return servers.find(s => s.id === selectedId) || null;
+}
+
 async function refresh() {
   try {
     servers = await api('/api/servers');
   } catch (e) { return; }
+  if (!servers.length) {
+    list.innerHTML = '<p>no servers yet. add one: <code>add-mcserver &lt;dir&gt; --command ... --port 25565</code></p>';
+    selectedId = null;
+  } else {
+    if (!servers.find(s => s.id === selectedId)) selectedId = servers[0].id;
+  }
   list.innerHTML = '';
-  const prevSel = logSel.value;
-  logSel.innerHTML = '';
-  if (!servers.length) list.innerHTML = '<p>No servers yet. Add one: <code>add-mcserver &lt;dir&gt; --command ... --port 25565</code></p>';
   for (const s of servers) {
-    const o = document.createElement('option');
-    o.value = s.id; o.textContent = s.name;
-    logSel.appendChild(o);
-    const d = document.createElement('div');
-    d.className = 'card';
     const running = ['starting', 'online', 'stopping'].includes(s.status);
+    const d = document.createElement('div');
+    d.className = 'card server' + (s.id === selectedId ? ' selected' : '');
     d.innerHTML = `
       <div class="row"><span class="dot ${s.status}"></span><strong>${s.name}</strong>
       <span>${s.status}${s.status === 'online' ? ' · up ' + fmtUptime(s.uptime) : ''}</span>
       <span>· port <code>${s.mc_port}</code></span></div>
-      ${s.domain ? `<div class="domain">e4mc: <code>${s.domain}</code> <button data-copy="${s.domain}">Copy</button></div>`
+      ${s.domain ? `<div class="domain">e4mc: <code>${s.domain}</code> <button data-copy="${s.domain}">copy</button></div>`
         : `<div class="domain">e4mc: <em>${running ? 'waiting for domain…' : '—'}</em></div>`}
       ${s.e4mc_error ? `<p class="err">${s.e4mc_error}</p>` : ''}
       <div class="row" style="margin-top:8px">
-        <button data-act="start" data-id="${s.id}" ${running ? 'disabled' : ''}>Start</button>
-        <button data-act="stop" data-id="${s.id}" class="stop" ${running ? '' : 'disabled'}>Stop</button>
+        <button data-act="start" data-id="${s.id}" ${running ? 'disabled' : ''}>start</button>
+        <button data-act="stop" data-id="${s.id}" class="stop" ${running ? '' : 'disabled'}>stop</button>
         <button data-act="regenerate" data-id="${s.id}" ${running ? '' : 'disabled'}>refresh address</button>
       </div>`;
+    d.onclick = () => { selectedId = s.id; refresh(); loadLogs(); };
     list.appendChild(d);
   }
-  if (prevSel) logSel.value = prevSel;
-  updateConsoleBtn();
-  list.querySelectorAll('button[data-act]').forEach(b => b.onclick = async () => {
-    if (b.dataset.act === 'regenerate' && !confirm('Get a new e4mc address? The old one will stop working and players must reconnect.')) return;
+  list.querySelectorAll('button[data-act]').forEach(b => b.onclick = async (ev) => {
+    ev.stopPropagation();
+    if (b.dataset.act === 'regenerate' && !confirm('get a new e4mc address? the old one will stop working and players must reconnect.')) return;
     b.disabled = true;
     try { await api(`/api/servers/${b.dataset.id}/${b.dataset.act}`, { method: 'POST' }); }
     catch (e) { alert(e.message); }
     refresh();
   });
-  list.querySelectorAll('button[data-copy]').forEach(b => b.onclick = () => navigator.clipboard.writeText(b.dataset.copy));
+  list.querySelectorAll('button[data-copy]').forEach(b => b.onclick = (ev) => {
+    ev.stopPropagation();
+    navigator.clipboard.writeText(b.dataset.copy);
+  });
+  const sel = selected();
+  consoleTitle.textContent = sel ? `console — ${sel.name}` : 'console';
+  consoleServer.textContent = sel ? `targeting port ${sel.mc_port}` : '';
+  updateConsoleBtn();
+}
+
+function updateConsoleBtn() {
+  const sel = selected();
+  document.getElementById('consoleSend').disabled = !(sel && ['starting', 'online'].includes(sel.status));
 }
 
 async function loadLogs() {
-  const id = logSel.value;
-  if (!id) return;
+  if (!selectedId) { logs.textContent = 'select a server…'; return; }
   try {
-    const j = await api(`/api/servers/${id}/logs`);
+    const j = await api(`/api/servers/${selectedId}/logs`);
     logs.textContent = j.logs || '(no logs yet)';
     logs.scrollTop = logs.scrollHeight;
   } catch (e) { logs.textContent = 'error: ' + e.message; }
 }
 
-document.getElementById('logBtn').onclick = loadLogs;
-
-function updateConsoleBtn() {
-  const sel = servers.find(s => s.id === logSel.value);
-  document.getElementById('consoleSend').disabled = !(sel && ['starting', 'online'].includes(sel.status));
-}
-logSel.onchange = () => { loadLogs(); updateConsoleBtn(); };
-
 async function sendConsole() {
-  const id = logSel.value;
-  if (!id) return;
+  if (!selectedId) return;
   const box = document.getElementById('consoleIn');
   const cmd = box.value;
   if (!cmd.trim()) return;
   box.value = '';
   try {
-    await api(`/api/servers/${id}/console`, {
+    await api(`/api/servers/${selectedId}/console`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ command: cmd }),
@@ -97,6 +105,8 @@ async function sendConsole() {
   } catch (e) { alert(e.message); }
   loadLogs();
 }
+
+document.getElementById('logBtn').onclick = loadLogs;
 document.getElementById('consoleSend').onclick = sendConsole;
 document.getElementById('consoleIn').addEventListener('keydown', e => {
   if (e.key === 'Enter') sendConsole();
@@ -199,6 +209,7 @@ if (addBtn) {
   };
   adminRefresh();
 }
+
 refresh();
 setInterval(refresh, 3000);
-setInterval(() => { if (logSel.value) loadLogs(); }, 5000);
+setInterval(() => { if (selectedId) loadLogs(); }, 5000);

@@ -1,17 +1,30 @@
-body{font-family:system-ui,sans-serif;background:#111417;color:#e8e8e8;margin:0;text-transform:lowercase}
-.wrap{max-width:900px;margin:0 auto;padding:24px}
-.narrow{max-width:420px}
-.top{display:flex;justify-content:space-between;align-items:center}
-.card{background:#1c2126;border:1px solid #333;border-radius:10px;padding:16px;margin:12px 0}
-.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+/* bleh — a 2000s tribute. gray bevels, navy titlebar, verdana. */
+body{font-family:Tahoma,Verdana,Arial,sans-serif;background:#3a6ea5;color:#000;margin:0;text-transform:lowercase}
+.page{max-width:1000px;margin:16px auto;background:#d4d0c8;border:2px outset #ffffff;padding:0 12px 12px}
+.top{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(90deg,#000080,#1084d0);color:#fff;padding:6px 10px;margin:12px 0 0;border:2px outset #ffffff}
+.top h1{margin:0;font-size:22px;letter-spacing:1px}
+.userbox{display:flex;gap:10px;align-items:center;font-size:13px}
+.layout{display:grid;grid-template-columns:1fr 2fr;gap:12px;align-items:start}
+@media (max-width:700px){.layout{grid-template-columns:1fr}}
+.sidebar h2,.content h2{background:#808080;color:#fff;font-size:14px;padding:3px 8px;margin:12px 0 8px;border:2px outset #ffffff}
+.card{background:#fff;border:2px inset #ffffff;padding:10px;margin:8px 0}
+.card.server{cursor:pointer}
+.card.server.selected{outline:2px solid #000080;background:#e8f0fe}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;border:1px solid #000}
 .offline{background:#666}.starting{background:#e0a100}.online{background:#2ecc71}.stopping{background:#e67e22}.crashed{background:#e74c3c}
-button{background:#2f6fed;color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer}
-button:disabled{opacity:.4;cursor:default}
-button.stop{background:#a33}
-code{background:#00000066;padding:2px 6px;border-radius:4px}
-.err{background:#4a1515;padding:10px;border-radius:6px}
-.hint{color:#aaa}
-pre{background:#000;color:#c8e6c9;padding:12px;border-radius:8px;max-height:400px;overflow:auto;white-space:pre-wrap}
-input,select{background:#222;color:#eee;border:1px solid #444;border-radius:6px;padding:8px}
-.domain{display:flex;gap:8px;align-items:center;margin-top:8px}
+button{font-family:inherit;background:#d4d0c8;color:#000;border:2px outset #ffffff;padding:4px 12px;cursor:pointer}
+button:active:not(:disabled){border-style:inset}
+button:disabled{opacity:.5;cursor:default;color:#666}
+button.stop{color:#a00;font-weight:bold}
+input,select{font-family:inherit;background:#fff;color:#000;border:2px inset #ffffff;padding:4px 6px}
+code{background:#ffffe1;border:1px solid #808080;padding:1px 5px}
+a{color:#0000ee}
+a:visited{color:#551a8b}
+.err{background:#fff;border:2px solid #c00;color:#c00;padding:8px}
+.hint{color:#333;font-size:13px}
+pre{background:#000;color:#c8e6c9;padding:12px;max-height:420px;overflow:auto;white-space:pre-wrap;border:2px inset #ffffff}
+.domain{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.footer{text-align:center;font-size:12px;color:#333;margin-top:16px;border-top:1px solid #808080;padding-top:8px}
+.narrow{max-width:420px;margin:40px auto;background:#d4d0c8;border:2px outset #ffffff;padding:16px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 12px 12px}
