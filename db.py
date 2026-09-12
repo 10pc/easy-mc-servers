@@ -256,13 +256,6 @@ def user_has_access(user_id: str, server_id: str) -> bool:
         return row is not None
 
 
-def get_password_hash() -> str | None:
-    """Legacy compat: returns the 'admin' user's hash, if any."""
-    init_db()
-    admin = get_user("admin")
-    return admin["password_hash"] if admin else None
-
-
 def set_password_hash(pw_hash: str):
     """Legacy compat: set-password CLI. Ensures an 'admin' admin user exists."""
     init_db()
