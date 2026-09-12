@@ -9,6 +9,7 @@ WorkingDirectory=/srv/mcserverdb
 Environment=PORT=6701
 Environment=BIND=127.0.0.1
 Environment=SECURE_COOKIES=1
+EnvironmentFile=-/srv/mcserverdb/.env
 ExecStart=/srv/mcserverdb/.venv/bin/python /srv/mcserverdb/app.py
 Restart=always
 RestartSec=3

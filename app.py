@@ -15,6 +15,25 @@ import manager as mgr_mod
 BASE_DIR = Path(__file__).resolve().parent
 SECRET_FILE = BASE_DIR / ".secret_key"
 
+
+def _load_env_file():
+    """Load KEY=VALUE lines from .env (gitignored). Real environment wins."""
+    try:
+        with open(BASE_DIR / ".env") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, val = line.partition("=")
+                key, val = key.strip(), val.strip().strip("'\"")
+                if key and key not in os.environ:
+                    os.environ[key] = val
+    except OSError:
+        pass
+
+
+_load_env_file()
+
 PORT = int(os.getenv("PORT", "6701"))
 BIND = os.getenv("BIND", "127.0.0.1")
 SECURE_COOKIES = os.getenv("SECURE_COOKIES", "0") == "1"
@@ -456,13 +475,16 @@ def api_system():
 
 
 # ---------------- zerotier join info (logged-in users only) ----------------
-ZT_NET_ID = "YOUR_ZT_NETWORK_ID"
-ZT_IP_FALLBACK = "YOUR_ZT_IP"
+# Secrets live in .env (gitignored), never in source. Empty net id hides the panel.
+ZT_NET_ID = os.getenv("ZT_NET_ID", "")
+ZT_IP_OVERRIDE = os.getenv("ZT_IP", "")
 
 
 def _zt_ip() -> str:
-    """Host's ZeroTier address: first IPv4 on an interface named zt*.
-    Falls back to the known address if detection fails."""
+    """Host's ZeroTier address: explicit ZT_IP, else first IPv4 on a zt*
+    interface, else empty (panel still shows the net id)."""
+    if ZT_IP_OVERRIDE:
+        return ZT_IP_OVERRIDE
     try:
         import re
         import subprocess
@@ -474,7 +496,7 @@ def _zt_ip() -> str:
                 return m.group(2)
     except Exception:
         pass
-    return ZT_IP_FALLBACK
+    return ""
 
 
 if __name__ == "__main__":

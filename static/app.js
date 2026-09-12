@@ -51,14 +51,14 @@ async function refresh() {
       <span>· port <code>${s.mc_port}</code></span></div>
       ${s.domain ? `<div class="domain">e4mc: <code>${s.domain}</code> <button data-copy="${s.domain}">copy</button></div>`
         : `<div class="domain">e4mc: <em>${running ? 'waiting for domain…' : '—'}</em></div>`}
-      <div class="row" style="margin-top:8px"><button data-zt="${s.id}">zerotier</button></div>
+      ${s.zt_net ? `<div class="row" style="margin-top:8px"><button data-zt="${s.id}">zerotier</button></div>
       <div data-ztpanel="${s.id}" style="display:${ztOpen.has(s.id) ? 'block' : 'none'}">
         <div class="domain">network: <code>${s.zt_net}</code> <button data-copy="${s.zt_net}">copy</button></div>
-        <div class="domain">address: <code>${s.zt_ip}:${s.mc_port}</code> <button data-copy="${s.zt_ip}:${s.mc_port}">copy</button></div>
+        ${s.zt_ip ? `<div class="domain">address: <code>${s.zt_ip}:${s.mc_port}</code> <button data-copy="${s.zt_ip}:${s.mc_port}">copy</button></div>` : ''}
         <div class="domain"><a href="https://www.zerotier.com/download/" target="_blank" rel="noopener">download zerotier</a></div>
         <img src="/static/tutorial.webp" alt="join new network screenshot" style="max-width:100%;margin-top:8px;border:2px inset #ffffff">
         <div><em>message the admin your zerotier address to get authorized</em></div>
-      </div>
+      </div>` : ''}
       ${s.e4mc_error ? `<p class="err">${s.e4mc_error}</p>` : ''}
       <div class="row" style="margin-top:8px">
         <button data-act="start" data-id="${s.id}" ${running ? 'disabled' : ''}>start</button>

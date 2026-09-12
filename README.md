@@ -12,6 +12,16 @@ python3 -m venv .venv
 .venv/bin/python app.py              # dev: http://127.0.0.1:6701
 ```
 
+Secrets live in `.env` (gitignored, `chmod 600`), never in source:
+
+```bash
+ZT_NET_ID=<zerotier network id>   # enables the per-card zerotier panel; empty hides it
+# ZT_IP=...                       # optional override, else auto-detected from zt* interface
+# PORT=6701 BIND=127.0.0.1 SECURE_COOKIES=1
+```
+
+Real environment variables override `.env` values.
+
 Second instance: new port, matching `server.properties:server-port`:
 
 ```bash
