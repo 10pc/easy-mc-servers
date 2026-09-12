@@ -5,7 +5,7 @@
 <meta name="csrf-token" content="{{ csrf_token }}"></head>
 <body>
 <div class="page">
-<header class="top"><h1>dimas' servers</h1>
+<header class="top"><h1>kaupec's servers</h1>
 <div class="userbox"><span>hi, {{ username }}{% if is_admin %} (admin){% endif %}</span>
 <form method="post" action="/logout" id="logoutForm"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">logout</button></form></div>
 </header>
