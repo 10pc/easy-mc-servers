@@ -101,6 +101,86 @@ document.getElementById('consoleSend').onclick = sendConsole;
 document.getElementById('consoleIn').addEventListener('keydown', e => {
   if (e.key === 'Enter') sendConsole();
 });
+
+// ---- admin: users & grants (only rendered for admins) ----
+async function adminRefresh() {
+  const wrap = document.getElementById('userList');
+  if (!wrap) return;
+  let data;
+  try { data = await api('/api/admin/users'); }
+  catch (e) { wrap.innerHTML = '<p class="err">' + e.message + '</p>'; return; }
+  wrap.innerHTML = '';
+  const srvOpts = data.servers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  for (const u of data.users) {
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.innerHTML = `
+      <div class="row"><strong>${u.username}</strong>${u.is_admin ? '<span>· admin (sees all servers)</span>' : ''}
+      <button data-deluser="${u.id}">delete</button>
+      <button data-resetpw="${u.id}">reset password</button></div>
+      ${u.is_admin ? '' : `
+      <div class="domain">${u.servers.length ? u.servers.map(s => `<span><code>${s.name}</code> <button data-revoke="${u.id}:${s.id}">revoke</button></span>`).join(' ') : '<em>no servers</em>'}</div>
+      <div class="row" style="margin-top:8px"><select data-grantsel="${u.id}">${srvOpts}</select>
+      <button data-grant="${u.id}">grant</button></div>`}`;
+    wrap.appendChild(d);
+  }
+  wrap.querySelectorAll('button[data-deluser]').forEach(b => b.onclick = async () => {
+    if (!confirm('delete this user?')) return;
+    try { await api(`/api/admin/users/${b.dataset.deluser}`, { method: 'DELETE' }); }
+    catch (e) { alert(e.message); }
+    adminRefresh();
+  });
+  wrap.querySelectorAll('button[data-resetpw]').forEach(b => b.onclick = async () => {
+    const pw = prompt('new password (min 8 chars):');
+    if (!pw) return;
+    try {
+      await api(`/api/admin/users/${b.dataset.resetpw}/password`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw }),
+      });
+      alert('password updated');
+    } catch (e) { alert(e.message); }
+  });
+  wrap.querySelectorAll('button[data-grant]').forEach(b => b.onclick = async () => {
+    const sel = wrap.querySelector(`select[data-grantsel="${b.dataset.grant}"]`);
+    try {
+      await api('/api/admin/grants', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: b.dataset.grant, server_id: sel.value }),
+      });
+    } catch (e) { alert(e.message); }
+    adminRefresh();
+  });
+  wrap.querySelectorAll('button[data-revoke]').forEach(b => b.onclick = async () => {
+    const [uid, sid] = b.dataset.revoke.split(':');
+    try {
+      await api('/api/admin/grants', {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: uid, server_id: sid }),
+      });
+    } catch (e) { alert(e.message); }
+    adminRefresh();
+  });
+}
+const addBtn = document.getElementById('addUserBtn');
+if (addBtn) {
+  addBtn.onclick = async () => {
+    const username = document.getElementById('newUser').value;
+    const password = document.getElementById('newPass').value;
+    const is_admin = document.getElementById('newAdmin').checked;
+    try {
+      await api('/api/admin/users', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, is_admin }),
+      });
+      document.getElementById('newUser').value = '';
+      document.getElementById('newPass').value = '';
+      document.getElementById('newAdmin').checked = false;
+    } catch (e) { alert(e.message); }
+    adminRefresh();
+  };
+  adminRefresh();
+}
 refresh();
 setInterval(refresh, 3000);
 setInterval(() => { if (logSel.value) loadLogs(); }, 5000);

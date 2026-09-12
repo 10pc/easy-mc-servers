@@ -30,9 +30,26 @@ Second instance: new port, matching `server.properties:server-port`:
 
 Stop sends `stop` to the MC console, waits 30s, then SIGTERM/KILLs the process group; e4mc is stopped too.
 
-## Auth
+## Auth & users
 
-Single admin password (`scrypt` hash in `servers.db`), signed session cookie (12h, HttpOnly, SameSite=Lax, Secure when `SECURE_COOKIES=1`), CSRF token on POST, 5-fails/5min rate limit per IP. No default credentials.
+Multi-user with roles. The first account (`admin`, created via `set-password`) is admin.
+Only admins can manage users, and only via CLI or the admin panel at the bottom
+of the dashboard. Regular users only see servers explicitly granted to them
+(everything else returns 404, indistinguishable from missing).
+
+```bash
+.venv/bin/python cli.py user-add fred            # add user (prompts password)
+.venv/bin/python cli.py user-add cara --admin    # add second admin
+.venv/bin/python cli.py grant fred survival      # give fred a server
+.venv/bin/python cli.py revoke fred survival
+.venv/bin/python cli.py user-passwd fred
+.venv/bin/python cli.py user-del fred
+.venv/bin/python cli.py user-list
+```
+
+Sessions: signed cookie (12h, HttpOnly, SameSite=Lax, Secure when
+`SECURE_COOKIES=1`), CSRF token on POST, 5-fails/5min rate limit per IP.
+No default credentials. Deleting a user instantly invalidates their sessions.
 
 ## Prod
 

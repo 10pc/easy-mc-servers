@@ -5,7 +5,8 @@
 <meta name="csrf-token" content="{{ csrf_token }}"></head>
 <body><main class="wrap">
 <header class="top"><h1>bleh</h1>
-<form method="post" action="/logout" id="logoutForm"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Logout</button></form>
+<span>hi, {{ username }}{% if is_admin %} (admin){% endif %}</span>
+<form method="post" action="/logout" id="logoutForm"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">logout</button></form>
 </header>
 <p class="hint">hai :wave:<br>servers are listed here :3</p>
 <div id="servers"></div>
@@ -16,5 +17,17 @@
 <input id="consoleIn" placeholder="type a command…" autocomplete="off" spellcheck="false" style="flex:1;min-width:200px">
 <button id="consoleSend">send</button>
 </div>
+{% if is_admin %}
+<h2>users (admin only)</h2>
+<div class="card">
+<div class="row">
+<input id="newUser" placeholder="username" autocomplete="off" style="width:130px">
+<input id="newPass" type="password" placeholder="password" autocomplete="new-password" style="width:150px">
+<label><input type="checkbox" id="newAdmin"> admin</label>
+<button id="addUserBtn">add user</button>
+</div>
+<div id="userList"></div>
+</div>
+{% endif %}
 <script src="/static/app.js"></script>
 </main></body></html>

@@ -26,8 +26,8 @@ def _validate_port(port: int, exclude_id=None):
         sys.exit(f"error: port {port} already claimed by another server (use edit-server --port to change)")
 
 
-def cmd_set_password(_args):
-    pw = getpass.getpass("New admin password (min 12 chars recommended): ")
+def _prompt_password(label="New password") -> str:
+    pw = getpass.getpass(f"{label} (min 12 chars recommended): ")
     pw2 = getpass.getpass("Confirm: ")
     if pw != pw2:
         sys.exit("error: passwords do not match")
@@ -35,8 +35,84 @@ def cmd_set_password(_args):
         sys.exit("error: password must be at least 8 characters")
     if len(pw) < 12:
         print("warning: short password, 12+ chars recommended", file=sys.stderr)
-    db.set_password_hash(generate_password_hash(pw))
+    return pw
+
+
+def _valid_username(name: str) -> str:
+    name = name.strip().lower()
+    if not 3 <= len(name) <= 32 or not all(c.isalnum() or c in "-_" for c in name):
+        sys.exit("error: username must be 3-32 chars of letters, digits, - or _")
+    return name
+
+
+def cmd_set_password(_args):
+    db.set_password_hash(generate_password_hash(_prompt_password("New admin password")))
     print("admin password set")
+
+
+def cmd_user_add(a):
+    username = _valid_username(a.username)
+    if db.get_user(username):
+        sys.exit(f"error: user already exists: {username}")
+    user = db.create_user(username, generate_password_hash(_prompt_password()),
+                           is_admin=a.admin)
+    print(f"added user {user['username']} (id={user['id']}) admin={user['is_admin']}")
+
+
+def cmd_user_passwd(a):
+    user = db.get_user(a.username)
+    if not user:
+        sys.exit(f"error: user not found: {a.username}")
+    db.set_user_password(user["id"], generate_password_hash(_prompt_password()))
+    print(f"password updated for {user['username']}")
+
+
+def cmd_user_del(a):
+    user = db.get_user(a.username)
+    if not user:
+        sys.exit(f"error: user not found: {a.username}")
+    if user["is_admin"] and db.count_admins() <= 1:
+        sys.exit("error: cannot delete the last admin")
+    db.delete_user(user["id"])
+    print(f"deleted user {user['username']}")
+
+
+def cmd_user_list(_a):
+    users = db.list_users(include_servers=True)
+    servers = {s["id"]: s["name"] for s in db.list_servers()}
+    if not users:
+        print("no users yet. the admin account is created via: set-password")
+        return
+    for u in users:
+        names = [servers.get(sid, sid) for sid in u["servers"]]
+        print(f"{u['username']}\tadmin={u['is_admin']}\tservers={','.join(names) or '-'}")
+
+
+def cmd_grant(a):
+    user = db.get_user(a.username)
+    if not user:
+        sys.exit(f"error: user not found: {a.username}")
+    srv = db.get_server(a.server)
+    if not srv:
+        sys.exit(f"error: server not found: {a.server}")
+    if user["is_admin"]:
+        print(f"note: {user['username']} is admin and already sees all servers")
+        return
+    db.grant_access(user["id"], srv["id"])
+    print(f"granted {user['username']} -> {srv['name']}")
+
+
+def cmd_revoke(a):
+    user = db.get_user(a.username)
+    if not user:
+        sys.exit(f"error: user not found: {a.username}")
+    srv = db.get_server(a.server)
+    if not srv:
+        sys.exit(f"error: server not found: {a.server}")
+    if db.revoke_access(user["id"], srv["id"]):
+        print(f"revoked {user['username']} -> {srv['name']}")
+    else:
+        print("no such grant")
 
 
 def cmd_add(a):
@@ -140,6 +216,32 @@ def main():
 
     p = sub.add_parser("list-servers", aliases=["list", "ls"], help="list entries")
     p.set_defaults(fn=cmd_list)
+
+    p = sub.add_parser("user-add", help="add a dashboard user (admin assigns servers via grant)")
+    p.add_argument("username")
+    p.add_argument("--admin", action="store_true", help="make this user an admin")
+    p.set_defaults(fn=cmd_user_add)
+
+    p = sub.add_parser("user-passwd", help="reset a user's password")
+    p.add_argument("username")
+    p.set_defaults(fn=cmd_user_passwd)
+
+    p = sub.add_parser("user-del", help="delete a user")
+    p.add_argument("username")
+    p.set_defaults(fn=cmd_user_del)
+
+    p = sub.add_parser("user-list", help="list users and their servers")
+    p.set_defaults(fn=cmd_user_list)
+
+    p = sub.add_parser("grant", help="give a user access to a server")
+    p.add_argument("username")
+    p.add_argument("server", help="server id or name")
+    p.set_defaults(fn=cmd_grant)
+
+    p = sub.add_parser("revoke", help="remove a user's access to a server")
+    p.add_argument("username")
+    p.add_argument("server", help="server id or name")
+    p.set_defaults(fn=cmd_revoke)
 
     args = ap.parse_args()
     args.fn(args)
