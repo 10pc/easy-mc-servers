@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>how to join</title><link rel="stylesheet" href="/static/style.css"></head>
+<body>
+<div class="page">
+<header class="top"><h1>how to join</h1></header>
+<p class="hint">hai :wave: follow these steps to play :3</p>
+<div class="card">
+<div class="row"><strong>1.</strong><span>download zerotier:</span>
+<a href="https://www.zerotier.com/download/" target="_blank" rel="noopener">zerotier.com/download</a></div>
+</div>
+<div class="card">
+<div class="row"><strong>2.</strong><span>open zerotier and click <code>join new network…</code>:</span></div>
+<img src="/static/tutorial.webp" alt="join new network screenshot" style="max-width:100%;margin-top:8px;border:2px inset #ffffff">
+</div>
+<div class="card">
+<div class="row"><strong>3.</strong><span>enter this network id:</span>
+<code>{{ zt_net }}</code> <button onclick="navigator.clipboard.writeText('{{ zt_net }}')">copy</button></div>
+</div>
+<div class="card">
+<div class="row"><strong>4.</strong><span>shoot the admin a message with your zerotier address so they can authorize you.</span></div>
+</div>
+<div class="card">
+<div class="row"><strong>5.</strong><span>once authorized, connect in minecraft to:</span></div>
+{% if servers %}
+{% for s in servers %}
+<div class="domain"><span>{{ s.name }}:</span> <code>{{ zt_ip }}:{{ s.mc_port }}</code>
+<button onclick="navigator.clipboard.writeText('{{ zt_ip }}:{{ s.mc_port }}')">copy</button></div>
+{% endfor %}
+{% else %}
+<p><em>no servers are up right now — check back later :3</em></p>
+{% endif %}
+</div>
+<footer class="footer">bleh · best viewed in netscape navigator 4.0 at 800x600</footer>
+</div>
+</body></html>

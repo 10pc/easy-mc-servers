@@ -448,6 +448,36 @@ def api_system():
         return jsonify({"error": f"unavailable: {e}"}), 500
 
 
+# ---------------- public join info (no login: this is for players) ----------------
+ZT_NET_ID = "YOUR_ZT_NETWORK_ID"
+ZT_IP_FALLBACK = "YOUR_ZT_IP"
+
+
+def _zt_ip() -> str:
+    """Host's ZeroTier address: first IPv4 on an interface named zt*.
+    Falls back to the known address if detection fails."""
+    try:
+        import re
+        import subprocess
+        out = subprocess.run(["ip", "-o", "-4", "addr", "show"],
+                             capture_output=True, text=True, timeout=5).stdout
+        for line in out.splitlines():
+            m = re.search(r"^\d+:\s+(zt\S+)\s+inet\s+(\d+\.\d+\.\d+\.\d+)", line)
+            if m:
+                return m.group(2)
+    except Exception:
+        pass
+    return ZT_IP_FALLBACK
+
+
+@app.route("/join")
+def join():
+    db.init_db()
+    servers = [{"name": s["name"], "mc_port": s["mc_port"]} for s in db.list_servers()]
+    return render_template("join.html", servers=servers,
+                           zt_ip=_zt_ip(), zt_net=ZT_NET_ID)
+
+
 if __name__ == "__main__":
     db.init_db()
     # Bind loopback only: exposed via Cloudflare Tunnel, no port forwarding.
