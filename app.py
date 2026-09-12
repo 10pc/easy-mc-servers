@@ -270,6 +270,26 @@ def api_console(sid):
         return jsonify({"error": str(e)}), 409
 
 
+@app.route("/api/account/password", methods=["POST"])
+@login_required
+def api_account_password():
+    """Let any logged-in user change their own password (admins keep the
+    reset ability via /api/admin/users/<uid>/password)."""
+    if not _check_csrf():
+        return jsonify({"error": "bad csrf"}), 403
+    user = db.get_user_by_id(session.get("user_id"))
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    data = request.get_json(silent=True) or {}
+    if not check_password_hash(user["password_hash"], data.get("current_password", "")):
+        return jsonify({"error": "current password is incorrect"}), 400
+    new_password = data.get("new_password", "")
+    if len(new_password) < 8:
+        return jsonify({"error": "new password must be at least 8 characters"}), 400
+    db.set_user_password(user["id"], generate_password_hash(new_password))
+    return jsonify({"ok": True})
+
+
 # ---------------- admin: users & grants (admin only) ----------------
 
 def _valid_username(name: str) -> str | None:

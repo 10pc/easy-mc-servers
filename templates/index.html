@@ -17,6 +17,15 @@
 <input id="consoleIn" placeholder="type a command…" autocomplete="off" spellcheck="false" style="flex:1;min-width:200px">
 <button id="consoleSend">send</button>
 </div>
+<h2>account</h2>
+<div class="card">
+<div class="row">
+<input id="curPass" type="password" placeholder="current password" autocomplete="current-password" style="width:160px">
+<input id="newPass1" type="password" placeholder="new password" autocomplete="new-password" style="width:160px">
+<input id="newPass2" type="password" placeholder="confirm new password" autocomplete="new-password" style="width:160px">
+<button id="changePassBtn">change password</button>
+</div>
+</div>
 {% if is_admin %}
 <h2>users (admin only)</h2>
 <div class="card">

@@ -102,6 +102,24 @@ document.getElementById('consoleIn').addEventListener('keydown', e => {
   if (e.key === 'Enter') sendConsole();
 });
 
+// ---- account: change own password (all users) ----
+document.getElementById('changePassBtn').onclick = async () => {
+  const cur = document.getElementById('curPass').value;
+  const p1 = document.getElementById('newPass1').value;
+  const p2 = document.getElementById('newPass2').value;
+  if (p1 !== p2) { alert('new passwords do not match'); return; }
+  try {
+    await api('/api/account/password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current_password: cur, new_password: p1 }),
+    });
+    document.getElementById('curPass').value = '';
+    document.getElementById('newPass1').value = '';
+    document.getElementById('newPass2').value = '';
+    alert('password changed');
+  } catch (e) { alert(e.message); }
+};
+
 // ---- admin: users & grants (only rendered for admins) ----
 async function adminRefresh() {
   const wrap = document.getElementById('userList');
