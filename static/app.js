@@ -18,7 +18,8 @@ async function api(path, opts = {}) {
 }
 
 function fmtUptime(s) {
-  const m = Math.floor(s / 60), h = Math.floor(m / 60);
+  const m = Math.floor(s / 60), h = Math.floor(m / 60), d = Math.floor(h / 24);
+  if (d) return `${d}d ${h % 24}h`;
   if (h) return `${h}h ${m % 60}m`;
   if (m) return `${m}m ${s % 60}s`;
   return `${s}s`;
