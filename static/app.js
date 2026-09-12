@@ -81,11 +81,31 @@ function updateConsoleBtn() {
   document.getElementById('consoleSend').disabled = !(sel && ['starting', 'online'].includes(sel.status));
 }
 
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function logClass(line) {
+  if (/\[cmd\]/.test(line)) return 'lg-cmd';
+  if (/\[sys\]/.test(line)) return 'lg-sys';
+  if (/\b(ERROR|FATAL|SEVERE)\b|(Exception|Traceback)|error:/i.test(line)) return 'lg-err';
+  if (/\b(WARN|WARNING)\b/i.test(line)) return 'lg-warn';
+  return '';
+}
+
+function renderLogs(text) {
+  return text.split('\n').map(line => {
+    const cls = logClass(line);
+    const esc = escapeHtml(line);
+    return cls ? `<span class="${cls}">${esc}</span>` : esc;
+  }).join('\n');
+}
+
 async function loadLogs() {
   if (!selectedId) { logs.textContent = 'select a server…'; return; }
   try {
     const j = await api(`/api/servers/${selectedId}/logs`);
-    logs.textContent = j.logs || '(no logs yet)';
+    logs.innerHTML = renderLogs(j.logs || '(no logs yet)');
     logs.scrollTop = logs.scrollHeight;
   } catch (e) { logs.textContent = 'error: ' + e.message; }
 }
