@@ -101,12 +101,17 @@ function renderLogs(text) {
   }).join('\n');
 }
 
+function shouldStick(el, pad = 40) {
+  return el.scrollTop + el.clientHeight >= el.scrollHeight - pad;
+}
+
 async function loadLogs() {
   if (!selectedId) { logs.textContent = 'select a server…'; return; }
   try {
     const j = await api(`/api/servers/${selectedId}/logs`);
+    const stick = shouldStick(logs);
     logs.innerHTML = renderLogs(j.logs || '(no logs yet)');
-    logs.scrollTop = logs.scrollHeight;
+    if (stick) logs.scrollTop = logs.scrollHeight;
   } catch (e) { logs.textContent = 'error: ' + e.message; }
 }
 
